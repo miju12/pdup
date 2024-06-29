@@ -2,11 +2,12 @@ Hello, I made a little Bash script that you can use to upload files to https://p
 
 To install it you can execute this command:
 
-    sudo wget https://raw.githubusercontent.com/Fornax96/pdup/master/pdup -O "/usr/local/bin/pdup"; sudo chmod +x "/usr/local/bin/pdup"
+    sudo wget https://raw.githubusercontent.com/miju12/pdup/master/pdup -O "/usr/local/bin/pdup"; sudo chmod +x "/usr/local/bin/pdup"
 
 Explanation: The wget command downloads the script from github and saves it to /usr/local/bin/pdup so you can run it from the terminal. Then chmod makes it executable
 
 Then you can upload files from anywhere in the system using
+    Need to enter your api key for first time
 
     pdup file.txt
 

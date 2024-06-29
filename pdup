@@ -1,17 +1,64 @@
 #!/bin/bash
-MINPARAMS=1
 PDSERVER="https://pixeldrain.com"
+API_KEY_FILE="~/.pixeldrain_api_key"
 
-for FILE in "$@"
-do
-	FILENAME="${FILE##*/}"
+# Function to prompt for API key and save it
+prompt_api_key() {
+    read -p "Enter your Pixeldrain API key: " API_KEY
+    if [ -z "$API_KEY" ]; then
+        echo "Error: API key cannot be empty."
+        exit 1
+    fi
+    echo "Saving API key to $API_KEY_FILE"
+    echo "export PIXELDRAIN_API_KEY=\"$API_KEY\"" > "$API_KEY_FILE"
+    chmod 600 "$API_KEY_FILE"  # Secure permissions for the API key file
+}
 
-	echo "Uploading $FILENAME ... "
-	RESPONSE=$(curl -# -F "fileName=$FILENAME" -F "file=@$FILE" $PDSERVER/api/upload)
-	FILEID=$(echo $RESPONSE | grep -Po '(?<="id":")[^"]*')
+# Expand the ~ to the actual home directory path
+API_KEY_FILE=$(eval echo "$API_KEY_FILE")
 
-	echo "Your file URL: $PDSERVER/u/$FILEID"
-	echo ""
-done
+# Check if API key file exists and source it
+if [ -f "$API_KEY_FILE" ]; then
+    source "$API_KEY_FILE"
+else
+    prompt_api_key
+    source "$API_KEY_FILE"  # Source again to load the API key after saving
+fi
 
-echo "" # Move cursor down when script finishes
+# Function to upload files
+upload_files() {
+    local files=("$@")
+    
+    for file in "${files[@]}"
+    do
+        if [ ! -f "$file" ]; then
+            echo "Error: File $file not found!"
+            continue
+        fi
+
+        filename=$(basename "$file")
+
+        echo "Uploading $filename ..."
+        response=$(curl -s -T "$file" -u ":$PIXELDRAIN_API_KEY" "$PDSERVER/api/file/")
+        
+        # Check for errors in the response
+        if echo "$response" | grep -q '"success":false'; then
+            echo "Error: Failed to upload $filename"
+            echo "Response: $response"
+        else
+            fileid=$(echo "$response" | jq -r '.id')
+            echo "Your file URL: $PDSERVER/u/$fileid"
+        fi
+
+        echo ""  # New line for spacing
+    done
+}
+
+# Check for files as arguments
+if [ $# -eq 0 ]; then
+    echo "Usage: pdup <file1> <file2> ... <fileN>"
+    exit 1
+fi
+
+# Run upload function with provided files
+upload_files "$@"
