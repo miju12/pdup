@@ -6,7 +6,8 @@ To install it you can execute this command:
 
 Explanation: The wget command downloads the script from github and saves it to /usr/local/bin/pdup so you can run it from the terminal. Then chmod makes it executable
 
-Then you can upload files from anywhere in the system using
+Then you can upload files from anywhere in the system
+   
     Need to enter your api key for first time
 
     pdup file.txt
