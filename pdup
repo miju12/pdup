@@ -62,8 +62,8 @@ upload_files() {
         filename=$(basename "$file")
 
         echo "Uploading $filename ..."
-        response=$(curl -s -T "$file" -u ":$PIXELDRAIN_API_KEY" "$PDSERVER/api/file/")
-        
+        response=$(curl -# -T "$file" -u ":$PIXELDRAIN_API_KEY" "$PDSERVER/api/file/")
+             
         # Check for errors in the response
         if echo "$response" | grep -q '"success":false'; then
             echo "Error: Failed to upload $filename"
