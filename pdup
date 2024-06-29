@@ -1,6 +1,6 @@
 #!/bin/bash
 PDSERVER="https://pixeldrain.com"
-API_KEY_FILE="~/.pixeldrain_api_key"
+API_KEY_FILE="$HOME/.pixeldrain_api_key"
 
 # Function to prompt for API key and save it
 prompt_api_key() {
@@ -13,6 +13,29 @@ prompt_api_key() {
     echo "export PIXELDRAIN_API_KEY=\"$API_KEY\"" > "$API_KEY_FILE"
     chmod 600 "$API_KEY_FILE"  # Secure permissions for the API key file
 }
+
+# Function to install jq if not already installed
+install_jq() {
+    echo "jq is required for JSON parsing."
+    read -p "Do you want to install jq now? (y/n): " install_jq
+    if [ "$install_jq" = "y" ] || [ "$install_jq" = "Y" ]; then
+        sudo apt-get update
+        sudo apt-get install jq
+    else
+        echo "Exiting script as jq is required."
+        exit 1
+    fi
+}
+
+# Check if jq is installed; if not, prompt user to install it
+check_jq_installation() {
+    if ! command -v jq &> /dev/null; then
+        install_jq
+    fi
+}
+
+# Check if jq is installed
+check_jq_installation
 
 # Expand the ~ to the actual home directory path
 API_KEY_FILE=$(eval echo "$API_KEY_FILE")
